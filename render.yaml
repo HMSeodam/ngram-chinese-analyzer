@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ngram-chinese-analyzer
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn ngsm:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.7 
