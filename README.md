@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # N-gram Chinese Text Analyzer
 
 한자 텍스트의 N-gram 분석을 위한 웹 애플리케이션입니다. FastAPI와 Bootstrap을 사용하여 구축되었으며, 다국어 지원(한국어, 영어, 중국어, 일본어)을 제공합니다.
@@ -137,3 +138,7 @@ ngram-chinese-analyzer/
 ---
 
 **Made with ❤️ for Chinese text analysis** 
+=======
+# ngram-chinese-analyzer
+N-gram Chinese Text Analyzer Web App
+>>>>>>> e10b5d12eec35adab49b2882f9d3ffe4e682135c
