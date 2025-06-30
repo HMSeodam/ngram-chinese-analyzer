@@ -958,7 +958,7 @@ async def generate_wordcloud(
             raise HTTPException(status_code=400, detail="워드클라우드 생성을 위한 유효한 데이터가 없습니다.")
 
         # 폰트 경로 자동 감지 (윈도우/리눅스)
-        font_path = "C:\\Windows\\Fonts\\msyh.ttc"
+        font_path = "static/fonts/NotoSansCJKtc-Regular.otf"
         if not os.path.exists(font_path):
             font_path = "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"
             if not os.path.exists(font_path):
