@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>N-gram Chinese Text Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-chart-bar me-2"></i>N-gram Chinese Text Analyzer
+    </a>
+    <div class="dropdown ms-auto">
+      <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-globe me-1"></i>{{ current_lang }}
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="ko">한국어</a></li>
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="en">English</a></li>
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="zh">中文</a></li>
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="ja">日本語</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid py-4">
+  <!-- File Upload Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-upload me-2"></i>{{ locale.fileUpload }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <input id="fileInput" type="file" multiple class="form-control" accept=".txt,.html,.hwp" 
+                 data-bs-toggle="tooltip" title="{{ locale.selectFiles }}">
+          <div id="selectedFilesInfo" class="mt-2" style="display: none;">
+            <small class="text-muted">{{ locale.selectedFilesCount }}</small>
+            <div id="selectedFilesList" class="mt-1"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="row">
+            <div class="col-6">
+              <label class="form-label">{{ locale.minNgram }}</label>
+              <input id="minN" type="number" class="form-control" value="2" min="1" max="10">
+            </div>
+            <div class="col-6">
+              <label class="form-label">{{ locale.maxNgram }}</label>
+              <input id="maxN" type="number" class="form-control" value="4" min="1" max="10">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <button id="analyzeBtn" class="btn btn-primary me-2">
+          <i class="fas fa-play me-1"></i>{{ locale.analyze }}
+        </button>
+        <button id="wordcloudBtn" class="btn btn-success me-2" disabled>
+          <i class="fas fa-cloud me-1"></i>{{ locale.wordcloud }}
+        </button>
+        <button id="downloadBtn" class="btn btn-outline-secondary me-2" disabled>
+          <i class="fas fa-download me-1"></i>{{ locale.download }}
+        </button>
+        <button id="applyBtn" class="btn btn-warning" disabled>
+          <i class="fas fa-highlighter me-1"></i>{{ locale.applyHighlight }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis Controls -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-filter me-2"></i>{{ locale.analysisControls }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <label class="form-label">{{ locale.mode }}</label>
+          <select id="modeSelect" class="form-select">
+            <option value="all">{{ locale.all }}</option>
+            <option value="common">{{ locale.common }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">{{ locale.sort }}</label>
+          <select id="sortSelect" class="form-select">
+            <option value="빈도수 오름차순">{{ locale.freqAsc }}</option>
+            <option value="빈도수 내림차순">{{ locale.freqDesc }}</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <div id="commonControls" style="display: none;">
+            <label class="form-label">{{ locale.selectCommon }}</label>
+            <div id="fileCheckboxes" class="mb-2"></div>
+            <div class="form-check">
+              <input id="includeAll" class="form-check-input" type="checkbox">
+              <label class="form-check-label" for="includeAll">{{ locale.includeAll }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ locale.results }}</h5>
+      <span id="dataCount" class="badge bg-secondary">{{ locale.dataCount.replace('{count}', '0') }}</span>
+    </div>
+    <div class="card-body">
+      <div id="resultsArea" class="table-responsive">
+        <div class="text-center text-muted py-5">
+          <i class="fas fa-file-alt fa-3x mb-3"></i>
+          <p>{{ locale.noData }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 id="loadingMessage">{{ locale.processing }}</h5>
+        <p class="text-muted">{{ locale.pleaseWait }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- File Selection Modal for Highlight -->
+<div class="modal fade" id="fileSelectionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ locale.selectFileForHighlight }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="fileSelectionList"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ locale.cancel }}</button>
+        <button type="button" class="btn btn-primary" id="applyHighlightBtn">{{ locale.apply }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Download Options Modal -->
+<div class="modal fade" id="downloadModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">다운로드 옵션</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatHtml" value="html" checked>
+          <label class="form-check-label" for="formatHtml">HTML 파일 (.html)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatDocx" value="docx">
+          <label class="form-check-label" for="formatDocx">Word 문서 (.docx)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatHwp" value="hwp">
+          <label class="form-check-label" for="formatHwp">한글 문서 (.hwp)</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary" id="confirmDownloadBtn">다운로드</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const LOCALE = {{ locale|tojson }};
+</script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
