@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: ngram-chinese-analyzer
+    name: n-grami
     env: python
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn test_web:app --host 0.0.0.0 --port $PORT
-    pythonVersion: 3.11
+    pythonVersion: "3.11"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn test_web:app --host 0.0.0.0 --port $PORT"
