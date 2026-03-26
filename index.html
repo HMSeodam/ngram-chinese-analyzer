@@ -875,9 +875,16 @@ tr:hover td{background:#f0f6ff;}
     // 창 제목
     const mode = document.getElementById('modeSelect').value;
     const modeLabel = mode === 'common'
-      ? (document.querySelector('#fileCheckboxes input:checked')?.nextElementSibling?.textContent?.trim() || '공통')
-      : '전체';
-    const pageTitle = `${fname} × ${modeLabel} — N-gram 하이라이트`;
+      ? (() => {
+          const checked = Array.from(document.querySelectorAll('#fileCheckboxes input:checked'));
+          if (checked.length === 0) return '공통';
+          const names = checked.map(cb => cb.value);
+          // fname과 동일한 이름만 있는 경우 "공통 분석"으로 표시
+          const others = names.filter(n => n !== fname);
+          return others.length > 0 ? `공통(${others.join(', ')})` : '공통 분석';
+        })()
+      : '전체 분석';
+    const pageTitle = `${fname} — N-gram 하이라이트 (${modeLabel})`;
 
     // N-gram 위치 계산 (hanja는 코드포인트 배열)
     const ngrams = new Set(this.currentResults.map(r => r.split(':')[0].trim()));
