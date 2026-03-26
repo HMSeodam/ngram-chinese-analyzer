@@ -10,7 +10,7 @@
 
 ## 👉 바로 사용하기
 
-**[https://hmseodam.github.io/ngram-chinese-analyzer/](https://hmseodam.github.io/Ngram-Chinese-Analyzer/)**
+**[https://hmseodam.github.io/ngram-chinese-analyzer/](https://hmseodam.github.io/ngram-chinese-analyzer/)**
 
 ---
 
