@@ -520,13 +520,14 @@ class NgramAnalyzer {
         const content = e.target.result;
         const name = file.name.replace(/\.[^/.]+$/, '');
         this.originalTexts[name] = content;
-        let hanja = '', indices = [];
+        let hanjaArr = [], indices = [];
         let pos = 0;
         for (const ch of content) {
-          if (HANJA_RE.test(ch)) { hanja += ch; indices.push(pos); }
+          if (HANJA_RE.test(ch)) { hanjaArr.push(ch); indices.push(pos); }
           pos += ch.length; // 서로게이트 페어는 length=2, 일반 한자는 length=1
         }
-        this.filesData[name] = hanja;
+        // 배열로 저장 → N-gram 슬라이스·indexOf 모두 코드포인트 단위로 정확히 처리
+        this.filesData[name] = hanjaArr;
         this.indexMap[name]  = indices;
         resolve();
       };
@@ -546,11 +547,12 @@ class NgramAnalyzer {
           const total = filenames.length;
 
           filenames.forEach((name, idx) => {
-            const text = filesData[name];
-            const map = {};
+            const text = filesData[name]; // 코드포인트 배열
+            const len  = text.length;
+            const map  = {};
             for (let n = minN; n <= maxN; n++) {
-              for (let i = 0; i <= text.length - n; i++) {
-                const ng = text.slice(i, i + n);
+              for (let i = 0; i <= len - n; i++) {
+                const ng = text.slice(i, i + n).join('');
                 map[ng] = (map[ng] || 0) + 1;
               }
             }
@@ -566,7 +568,7 @@ class NgramAnalyzer {
       const blob   = new Blob([workerCode], { type: 'application/javascript' });
       const worker = new Worker(URL.createObjectURL(blob));
 
-      // filesData를 plain object로 변환 (Map → plain object)
+      // filesData(배열)를 plain object로 변환하여 Worker에 전달
       const filesDataPlain = {};
       for (const k of Object.keys(this.filesData)) filesDataPlain[k] = this.filesData[k];
 
@@ -877,18 +879,20 @@ tr:hover td{background:#f0f6ff;}
       : '전체';
     const pageTitle = `${fname} × ${modeLabel} — N-gram 하이라이트`;
 
-    // N-gram 위치 계산
+    // N-gram 위치 계산 (hanja는 코드포인트 배열)
     const ngrams = new Set(this.currentResults.map(r => r.split(':')[0].trim()));
     const redPos = new Set();
     for (const ng of ngrams) {
-      let start = 0;
-      while (true) {
-        const pos = hanja.indexOf(ng, start);
-        if (pos === -1) break;
-        for (let k = 0; k < ng.length; k++) {
-          if (pos + k < idxMap.length) redPos.add(idxMap[pos + k]);
+      const ngArr = Array.from(ng); // ng도 코드포인트 배열로 변환
+      const ngLen = ngArr.length;
+      for (let i = 0; i <= hanja.length - ngLen; i++) {
+        let match = true;
+        for (let k = 0; k < ngLen; k++) {
+          if (hanja[i + k] !== ngArr[k]) { match = false; break; }
         }
-        start = pos + 1;
+        if (match) {
+          for (let k = 0; k < ngLen; k++) redPos.add(idxMap[i + k]);
+        }
       }
     }
 
