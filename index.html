@@ -6,55 +6,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* ── Custom Styles ── */
-    body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .navbar-brand { font-weight: 600; font-size: 1.25rem; }
-    .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); border-radius: 0.5rem; }
-    .card-header { background-color: #fff; border-bottom: 1px solid #dee2e6; font-weight: 600; }
-    .btn { border-radius: 0.375rem; font-weight: 500; transition: all 0.15s ease-in-out; }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15); }
-    .btn:disabled { transform: none; box-shadow: none; }
-    .form-control, .form-select { border-radius: 0.375rem; border: 1px solid #ced4da; transition: border-color 0.15s, box-shadow 0.15s; }
-    .form-control:focus, .form-select:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25); }
-    .table { border-radius: 0.5rem; overflow: hidden; }
-    .table th { background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; font-weight: 600; }
-    .table td { vertical-align: middle; }
-    .badge { font-size: 0.875rem; padding: 0.5rem 0.75rem; }
-    .ngram-row:hover { background-color: #f8f9fa; }
-    .ngram-text { font-family: 'Microsoft YaHei', 'SimSun', serif; font-size: 1.1rem; font-weight: 500; }
-    .frequency-cell { text-align: center; font-weight: 600; color: #495057; }
-    .file-checkbox { margin-right: 1rem; margin-bottom: 0.5rem; }
-    .spinner-border { width: 3rem; height: 3rem; }
-    .modal-content { border: none; border-radius: 0.5rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15); }
-    .modal-header, .modal-footer { border-color: #dee2e6; background-color: #f8f9fa; }
-    .alert { border: none; border-radius: 0.5rem; font-weight: 500; }
-    .table-responsive { border-radius: 0.5rem; overflow: hidden; }
-    .fa-3x { font-size: 3rem; opacity: 0.5; }
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-    @media (max-width: 768px) {
-      .container-fluid { padding-left: 1rem; padding-right: 1rem; }
-      .btn { margin-bottom: 0.5rem; width: 100%; }
-      .card-body { padding: 1rem; }
+    /* ══ 디자인 토큰 ══ */
+    :root {
+      --brand:#1e3a5f; --brand-light:#2563eb; --accent:#dc2626;
+      --bg:#f7f6f1; --surface:#ffffff; --border:#e5e3db;
+      --text:#1a1a1a; --text-muted:#888;
+      --font-body:'Noto Serif KR','Malgun Gothic','Apple SD Gothic Neo',serif;
+      --radius:.5rem; --shadow-sm:0 1px 4px rgba(0,0,0,.07); --shadow-md:0 2px 10px rgba(0,0,0,.11);
     }
-
-    /* ── 워드클라우드 캔버스 ── */
-    #wcCanvas { max-width: 100%; border-radius: 0.5rem; background: #fff; }
-
-    /* ── 저작권 푸터 ── */
-    footer.app-footer {
-      margin-top: 2rem;
-      padding: 1.5rem 0;
-      border-top: 1px solid #dee2e6;
-      font-size: 0.82rem;
-      color: #6c757d;
-      text-align: center;
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background:var(--bg); font-family:var(--font-body); color:var(--text); font-size:15px; }
+    .navbar { background:var(--brand) !important; }
+    .navbar-brand { font-weight:700; font-size:1.15rem; letter-spacing:.02em; }
+    .card { border:1px solid var(--border); box-shadow:var(--shadow-sm); border-radius:var(--radius); background:var(--surface); }
+    .card-header { background:var(--surface); border-bottom:1px solid var(--border); font-weight:700; font-family:var(--font-body); }
+    .btn { border-radius:var(--radius); font-weight:600; transition:all .15s; }
+    .btn:hover { transform:translateY(-1px); box-shadow:var(--shadow-md); }
+    .btn:disabled { transform:none; box-shadow:none; opacity:.55; }
+    .btn-primary { background:var(--brand-light); border-color:var(--brand-light); }
+    .btn-primary:hover { background:var(--brand); border-color:var(--brand); }
+    .form-control, .form-select { border-radius:var(--radius); border:1px solid var(--border); font-family:var(--font-body); transition:border-color .15s,box-shadow .15s; }
+    .form-control:focus, .form-select:focus { border-color:var(--brand-light); box-shadow:0 0 0 .2rem rgba(37,99,235,.18); }
+    .table { border-radius:var(--radius); overflow:hidden; }
+    .table th { background:var(--brand); color:#fff; border-bottom:none; font-weight:700; font-family:var(--font-body); }
+    .table td { vertical-align:middle; }
+    .badge { font-size:.85rem; padding:.45rem .7rem; background:var(--brand) !important; }
+    .ngram-row:hover td { background:#f0f5ff; }
+    .ngram-text { font-family:var(--font-body); font-size:1.05rem; font-weight:700; color:var(--brand); }
+    .frequency-cell { text-align:center; font-weight:600; color:#444; }
+    .file-checkbox { margin-right:1rem; margin-bottom:.5rem; }
+    .spinner-border { width:3rem; height:3rem; }
+    .modal-content { border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-md); }
+    .modal-header, .modal-footer { background:var(--bg); border-color:var(--border); }
+    .alert { border:none; border-radius:var(--radius); font-weight:500; }
+    .table-responsive { border-radius:var(--radius); overflow:hidden; }
+    .fa-3x { font-size:3rem; opacity:.4; }
+    ::-webkit-scrollbar { width:7px; }
+    ::-webkit-scrollbar-track { background:#ece9e0; border-radius:4px; }
+    ::-webkit-scrollbar-thumb { background:#b5b0a5; border-radius:4px; }
+    ::-webkit-scrollbar-thumb:hover { background:#8a857a; }
+    #wcCanvas { max-width:100%; border-radius:var(--radius); background:#fffdf7; }
+    footer.app-footer { margin-top:2rem; padding:1.5rem 0; border-top:1px solid var(--border); font-size:.82rem; color:var(--text-muted); text-align:center; }
+    footer.app-footer a { color:var(--text-muted); text-decoration:underline dotted; }
+    footer.app-footer a:hover { color:var(--text); }
+    @media (max-width:768px) {
+      .container-fluid { padding-left:1rem; padding-right:1rem; }
+      .btn { margin-bottom:.5rem; width:100%; }
+      .card-body { padding:1rem; }
     }
-    footer.app-footer a { color: #6c757d; text-decoration: underline dotted; }
-    footer.app-footer a:hover { color: #343a40; }
   </style>
 </head>
 <body>
@@ -118,8 +119,11 @@
         <button id="downloadBtn" class="btn btn-outline-secondary me-2" disabled>
           <i class="fas fa-download me-1"></i><span data-i18n="download">다운로드</span>
         </button>
-        <button id="applyBtn" class="btn btn-warning" disabled>
+        <button id="applyBtn" class="btn btn-warning me-2" disabled>
           <i class="fas fa-highlighter me-1"></i><span data-i18n="applyHighlight">하이라이트 적용</span>
+        </button>
+        <button id="resetBtn" class="btn btn-outline-danger">
+          <i class="fas fa-rotate-left me-1"></i>초기화
         </button>
       </div>
     </div>
@@ -210,6 +214,10 @@
           <span class="visually-hidden">Loading...</span>
         </div>
         <h5 id="loadingMessage"></h5>
+        <div class="progress mt-3 mb-2" id="loadingProgressWrap" style="display:none;height:8px;">
+          <div id="loadingProgress" class="progress-bar progress-bar-striped progress-bar-animated"
+               role="progressbar" style="width:0%"></div>
+        </div>
         <p class="text-muted mb-0" data-i18n="pleaseWait">잠시만 기다려 주세요.</p>
       </div>
     </div>
@@ -245,7 +253,11 @@
       </div>
       <div class="modal-body">
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="downloadFormat" id="formatHtml" value="html" checked>
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatXlsx" value="xlsx" checked>
+          <label class="form-check-label" for="formatXlsx">엑셀 파일 (.xlsx)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatHtml" value="html">
           <label class="form-check-label" for="formatHtml" data-i18n="downloadHtml">HTML 파일 (.html)</label>
         </div>
         <div class="form-check">
@@ -283,6 +295,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 //  다국어 로케일
@@ -363,7 +376,28 @@ const LANG_LABELS = { ko:"한국어", en:"English", zh:"中文", ja:"日本語" 
 // ═══════════════════════════════════════════════════════════
 //  한자 패턴
 // ═══════════════════════════════════════════════════════════
-const HANJA_RE = /[\u4e00-\u9fff\u3400-\u4DBF\uF900-\uFAFF\u{20000}-\u{2A6DF}]/u;
+// ═══════════════════════════════════════════════════════════
+//  한자 유니코드 패턴 (한국·일본·대만·중국 전범위)
+//  ┌ CJK Unified Ideographs          U+4E00–U+9FFF  (기본 한자)
+//  ├ CJK Extension A                 U+3400–U+4DBF
+//  ├ CJK Extension B                 U+20000–U+2A6DF
+//  ├ CJK Extension C                 U+2A700–U+2B73F
+//  ├ CJK Extension D                 U+2B740–U+2B81F
+//  ├ CJK Extension E                 U+2B820–U+2CEAF
+//  ├ CJK Extension F                 U+2CEB0–U+2EBEF
+//  ├ CJK Extension G                 U+30000–U+3134F
+//  ├ CJK Extension H                 U+31350–U+323AF
+//  ├ CJK Compatibility Ideographs    U+F900–U+FAFF
+//  ├ CJK Compatibility Supplement    U+2F800–U+2FA1F
+//  ├ Kangxi Radicals                 U+2F00–U+2FDF
+//  ├ CJK Radicals Supplement         U+2E80–U+2EFF
+//  ├ 〇 Zero (CBETA 전적 빈번 사용)  U+3007
+//  ├ Kanbun (한문 훈독 부호)         U+3190–U+319F
+//  ├ CJK Strokes                     U+31C0–U+31EF
+//  ├ Enclosed CJK (괄호·원형 한자)  U+3200–U+32FF
+//  └ CJK Compatibility Forms         U+FE30–U+FE4F
+// ═══════════════════════════════════════════════════════════
+const HANJA_RE = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u2e80-\u2eff\u2f00-\u2fdf\u3007\u3190-\u319f\u31c0-\u31ef\u3200-\u32ff\ufe30-\ufe4f\u{20000}-\u{2a6df}\u{2a700}-\u{2b73f}\u{2b740}-\u{2b81f}\u{2b820}-\u{2ceaf}\u{2ceb0}-\u{2ebef}\u{2f800}-\u{2fa1f}\u{30000}-\u{3134f}\u{31350}-\u{323af}]/u;
 
 // ═══════════════════════════════════════════════════════════
 //  NgramAnalyzer 클래스 (순수 JS, 서버 불필요)
@@ -412,6 +446,7 @@ class NgramAnalyzer {
     document.getElementById('wordcloudBtn').addEventListener('click', () => this._showWordcloud());
     document.getElementById('downloadBtn').addEventListener('click', () => this._showDownloadModal());
     document.getElementById('applyBtn').addEventListener('click', () => this._showHighlightModal());
+    document.getElementById('resetBtn').addEventListener('click', () => this._reset());
     document.getElementById('modeSelect').addEventListener('change', e => this._onModeChange(e.target.value));
     document.getElementById('sortSelect').addEventListener('change', () => this._applyFilter());
     document.getElementById('includeAll').addEventListener('change', () => this._applyFilter());
@@ -444,7 +479,7 @@ class NgramAnalyzer {
     document.getElementById('selectedFilesInfo').style.display = 'block';
   }
 
-  // ── 분석 (파일 읽기 → N-gram) ─────────────────────────
+  // ── 분석 (Web Worker 사용) ────────────────────────────
   async _analyze() {
     const files = document.getElementById('fileInput').files;
     const minN  = parseInt(document.getElementById('minN').value);
@@ -452,12 +487,17 @@ class NgramAnalyzer {
     if (files.length < 2) { this._alert(this._t('needTwo'), 'danger'); return; }
     if (minN < 1 || maxN < minN) { this._alert(this._t('ngramRangeError'), 'danger'); return; }
 
-    this._showLoading(this._t('analyzing'));
+    this._showLoading(this._t('analyzing'), 0);
 
     try {
-      // 비동기로 파일 읽기
+      // 1단계: 파일 읽기
       await Promise.all(Array.from(files).map(f => this._readFile(f)));
-      this._buildNgrams(minN, maxN);
+      this._showLoading(this._t('analyzing'), 10);
+
+      // 2단계: Web Worker로 N-gram 연산
+      await this._buildNgramsWorker(minN, maxN);
+
+      // 3단계: 필터/정렬/렌더
       this._applyFilter();
       this._setupCheckboxes();
       this._enableBtns();
@@ -476,10 +516,11 @@ class NgramAnalyzer {
         const content = e.target.result;
         const name = file.name.replace(/\.[^/.]+$/, '');
         this.originalTexts[name] = content;
-        // 한자만 추출 + 위치 인덱스 보존
         let hanja = '', indices = [];
-        for (let i = 0; i < content.length; i++) {
-          if (HANJA_RE.test(content[i])) { hanja += content[i]; indices.push(i); }
+        let pos = 0;
+        for (const ch of content) {
+          if (HANJA_RE.test(ch)) { hanja += ch; indices.push(pos); }
+          pos += ch.length; // 서로게이트 페어는 length=2, 일반 한자는 length=1
         }
         this.filesData[name] = hanja;
         this.indexMap[name]  = indices;
@@ -490,31 +531,69 @@ class NgramAnalyzer {
     });
   }
 
-  _buildNgrams(minN, maxN) {
-    this.ngramResults = {};
-    this.allNgrams    = new Set();
-    this.filenames    = Object.keys(this.filesData);
+  // Web Worker로 N-gram 연산 분리
+  _buildNgramsWorker(minN, maxN) {
+    return new Promise((resolve, reject) => {
+      const workerCode = `
+        self.onmessage = function(e) {
+          const { filesData, filenames, minN, maxN } = e.data;
+          const ngramResults = {};
+          const allNgramsObj = {};
+          const total = filenames.length;
 
-    for (const name of this.filenames) {
-      const text = this.filesData[name];
-      const map  = new Map();
-      for (let n = minN; n <= maxN; n++) {
-        for (let i = 0; i <= text.length - n; i++) {
-          const ng = text.slice(i, i + n);
-          map.set(ng, (map.get(ng) || 0) + 1);
+          filenames.forEach((name, idx) => {
+            const text = filesData[name];
+            const map = {};
+            for (let n = minN; n <= maxN; n++) {
+              for (let i = 0; i <= text.length - n; i++) {
+                const ng = text.slice(i, i + n);
+                map[ng] = (map[ng] || 0) + 1;
+              }
+            }
+            ngramResults[name] = map;
+            for (const k of Object.keys(map)) allNgramsObj[k] = true;
+            self.postMessage({ type: 'progress', pct: Math.round(10 + (idx+1)/total*80) });
+          });
+
+          self.postMessage({ type: 'done', ngramResults, allNgrams: Object.keys(allNgramsObj) });
+        };
+      `;
+
+      const blob   = new Blob([workerCode], { type: 'application/javascript' });
+      const worker = new Worker(URL.createObjectURL(blob));
+
+      // filesData를 plain object로 변환 (Map → plain object)
+      const filesDataPlain = {};
+      for (const k of Object.keys(this.filesData)) filesDataPlain[k] = this.filesData[k];
+
+      worker.postMessage({ filesData: filesDataPlain, filenames: Object.keys(filesDataPlain), minN, maxN });
+
+      worker.onmessage = (e) => {
+        if (e.data.type === 'progress') {
+          this._showLoading(this._t('analyzing'), e.data.pct);
+        } else if (e.data.type === 'done') {
+          // plain object → Map으로 복원
+          this.ngramResults = {};
+          for (const name of Object.keys(e.data.ngramResults)) {
+            this.ngramResults[name] = new Map(Object.entries(e.data.ngramResults[name]));
+          }
+          this.allNgrams = new Set(e.data.allNgrams);
+          this.filenames = Object.keys(this.filesData);
+          worker.terminate();
+          this._showLoading(this._t('analyzing'), 95);
+          resolve();
         }
-      }
-      this.ngramResults[name] = map;
-      for (const k of map.keys()) this.allNgrams.add(k);
-    }
+      };
+      worker.onerror = (err) => { worker.terminate(); reject(err); };
+    });
   }
 
   // ── 필터 / 정렬 ───────────────────────────────────────
   _applyFilter() {
     if (!this.filenames.length) return;
-    const mode      = document.getElementById('modeSelect').value;
-    const sortDir   = document.getElementById('sortSelect').value;
-    const incAll    = document.getElementById('includeAll').checked;
+    const mode    = document.getElementById('modeSelect').value;
+    const sortDir = document.getElementById('sortSelect').value;
+    const incAll  = document.getElementById('includeAll').checked;
 
     let ngrams = [...this.allNgrams];
 
@@ -543,49 +622,90 @@ class NgramAnalyzer {
       return sortDir === 'asc' ? ta - tb : tb - ta;
     });
 
-    // 결과 문자열 생성
-    this.currentResults = ngrams.map(ng => {
-      const parts = this.filenames.map(f => `${f}: ${this.ngramResults[f]?.get(ng)||0}`);
-      return `${ng}: ${parts.join(', ')}`;
-    });
+    // 결과를 객체 배열로 보관 (문자열 파싱 오버헤드 제거)
+    this.currentResultsData = ngrams.map(ng => ({
+      ng,
+      freqs: this.filenames.map(f => this.ngramResults[f]?.get(ng) || 0)
+    }));
+    // 다운로드·하이라이트용 문자열도 유지
+    this.currentResults = this.currentResultsData.map(d =>
+      `${d.ng}: ${this.filenames.map((f,i) => `${f}: ${d.freqs[i]}`).join(', ')}`
+    );
 
-    this._renderResults(this.currentResults);
-    const cnt = document.getElementById('dataCount');
-    cnt.textContent = this._t('dataCount').replace('{count}', this.currentResults.length);
+    this._renderResults(this.currentResultsData);
+    document.getElementById('dataCount').textContent =
+      this._t('dataCount').replace('{count}', this.currentResultsData.length);
   }
 
-  // ── 결과 렌더링 ───────────────────────────────────────
-  _renderResults(results) {
+  // ── 가상 스크롤 렌더링 ────────────────────────────────
+  _renderResults(data) {
     const area = document.getElementById('resultsArea');
-    if (!results.length) {
+    if (!data || !data.length) {
       area.innerHTML = `<div class="text-center text-muted py-5">
         <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
         <p>${this._t('noValidData')}</p></div>`;
       return;
     }
-    const table = document.createElement('table');
-    table.className = 'table table-striped table-hover';
-    table.innerHTML = `<thead><tr>
-      <th style="width:40%">N-gram</th>
-      ${this.filenames.map(n => `<th class="text-center">${n}</th>`).join('')}
-    </tr></thead>`;
-    const tbody = document.createElement('tbody');
-    results.forEach(r => {
-      const [ngPart, ...rest] = r.split(': ');
-      const freqStr = rest.join(': ');
-      const tr = document.createElement('tr');
-      tr.className = 'ngram-row';
-      const freqs = this.filenames.map(f => {
-        const m = freqStr.match(new RegExp(`${f}:\\s*(\\d+)`));
-        return m ? m[1] : '0';
-      });
-      tr.innerHTML = `<td class="ngram-text">${ngPart}</td>` +
-        freqs.map(v => `<td class="frequency-cell">${v}</td>`).join('');
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-    area.innerHTML = '';
-    area.appendChild(table);
+
+    const ROW_H    = 36;   // 행 높이(px)
+    const BUFFER   = 20;   // 렌더 버퍼(위아래 여분 행 수)
+    const totalH   = data.length * ROW_H;
+
+    // 외부 컨테이너: 실제 스크롤 높이 확보
+    area.innerHTML = `
+      <div id="vsHeader" style="position:sticky;top:0;z-index:2;background:#f8f9fa;">
+        <table class="table table-striped table-hover mb-0" style="table-layout:fixed;">
+          <thead><tr>
+            <th style="width:40%">N-gram</th>
+            ${this.filenames.map(n=>`<th class="text-center">${n}</th>`).join('')}
+          </tr></thead>
+        </table>
+      </div>
+      <div id="vsScroll" style="overflow-y:auto;max-height:55vh;position:relative;">
+        <div id="vsSpacer" style="height:${totalH}px;position:relative;">
+          <table class="table table-striped table-hover mb-0" id="vsTable"
+                 style="table-layout:fixed;position:absolute;top:0;left:0;width:100%;">
+            <colgroup>
+              <col style="width:40%">
+              ${this.filenames.map(()=>'<col>').join('')}
+            </colgroup>
+            <tbody id="vsTbody"></tbody>
+          </table>
+        </div>
+      </div>`;
+
+    const scroll  = document.getElementById('vsScroll');
+    const tbody   = document.getElementById('vsTbody');
+    const table   = document.getElementById('vsTable');
+
+    let lastStart = -1;
+
+    const render = () => {
+      const scrollTop = scroll.scrollTop;
+      const visH      = scroll.clientHeight;
+      const startIdx  = Math.max(0, Math.floor(scrollTop / ROW_H) - BUFFER);
+      const endIdx    = Math.min(data.length, Math.ceil((scrollTop + visH) / ROW_H) + BUFFER);
+
+      if (startIdx === lastStart) return;
+      lastStart = startIdx;
+
+      table.style.top = `${startIdx * ROW_H}px`;
+
+      const frag = document.createDocumentFragment();
+      for (let i = startIdx; i < endIdx; i++) {
+        const d  = data[i];
+        const tr = document.createElement('tr');
+        tr.style.height = ROW_H + 'px';
+        tr.innerHTML = `<td class="ngram-text">${d.ng}</td>` +
+          d.freqs.map(v => `<td class="frequency-cell">${v}</td>`).join('');
+        frag.appendChild(tr);
+      }
+      tbody.innerHTML = '';
+      tbody.appendChild(frag);
+    };
+
+    scroll.addEventListener('scroll', render, { passive: true });
+    render();
   }
 
   // ── 체크박스 셋업 ─────────────────────────────────────
@@ -613,6 +733,38 @@ class NgramAnalyzer {
     });
   }
 
+  _reset() {
+    // 데이터 초기화
+    this.filesData      = {};
+    this.indexMap       = {};
+    this.originalTexts  = {};
+    this.ngramResults   = {};
+    this.allNgrams      = new Set();
+    this.filenames      = [];
+    this.currentResults = [];
+    this.currentResultsData = [];
+
+    // UI 초기화
+    document.getElementById('fileInput').value = '';
+    document.getElementById('selectedFilesInfo').style.display = 'none';
+    document.getElementById('selectedFilesList').innerHTML = '';
+    document.getElementById('fileCheckboxes').innerHTML = '';
+    document.getElementById('commonControls').style.display = 'none';
+    document.getElementById('modeSelect').value = 'all';
+    document.getElementById('sortSelect').value = 'asc';
+    document.getElementById('includeAll').checked = false;
+    document.getElementById('dataCount').textContent = '0';
+    document.getElementById('resultsArea').innerHTML = `
+      <div class="text-center text-muted py-5">
+        <i class="fas fa-file-alt fa-3x mb-3"></i>
+        <p data-i18n="noData">${this._t('noData')}</p>
+      </div>`;
+    ['wordcloudBtn','downloadBtn','applyBtn'].forEach(id => {
+      document.getElementById(id).disabled = true;
+    });
+    this._alert('초기화되었습니다.', 'success');
+  }
+
   // ── 다운로드 ──────────────────────────────────────────
   _showDownloadModal() {
     new bootstrap.Modal(document.getElementById('downloadModal')).show();
@@ -621,23 +773,73 @@ class NgramAnalyzer {
   _download() {
     const fmt = document.querySelector('input[name="downloadFormat"]:checked').value;
     const now = new Date().toLocaleString();
-    let content, mime, ext;
 
-    if (fmt === 'html') {
-      content = `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>body{font-family:serif;margin:20px;} .hd{background:#f8f9fa;padding:15px;border-radius:5px;margin-bottom:20px;} .r{padding:4px 0;border-bottom:1px solid #eee;}</style>
-</head><body><div class="hd"><h2>N-gram 분석 결과</h2><p>생성: ${now}</p>
-<p style="font-size:0.85em;color:#666;">Copyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</p></div>
-${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
+    if (fmt === 'xlsx') {
+      // ── 엑셀 ──
+      const header = ['N-gram', ...this.filenames];
+      const rows   = this.currentResultsData.map(d => [d.ng, ...d.freqs]);
+      const ws     = XLSX.utils.aoa_to_sheet([header, ...rows]);
+
+      // 열 너비 설정
+      ws['!cols'] = [{ wch: 12 }, ...this.filenames.map(() => ({ wch: 18 }))];
+
+      // 헤더 스타일 (배경색 + 굵게)
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let c = range.s.c; c <= range.e.c; c++) {
+        const cell = ws[XLSX.utils.encode_cell({ r: 0, c })];
+        if (cell) {
+          cell.s = {
+            font: { bold: true, color: { rgb: 'FFFFFF' } },
+            fill: { fgColor: { rgb: '0D6EFD' } },
+            alignment: { horizontal: 'center' }
+          };
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'N-gram 분석');
+
+      // 메타 시트
+      const metaWs = XLSX.utils.aoa_to_sheet([
+        ['생성일', now],
+        ['저작권', 'Copyright © 2025 서담 한민수, 동명대학교'],
+        ['라이선스', 'CC BY-NC-ND 4.0']
+      ]);
+      XLSX.utils.book_append_sheet(wb, metaWs, '정보');
+
+      XLSX.writeFile(wb, 'ngram_analysis.xlsx');
+
+    } else if (fmt === 'html') {
+      const rows = this.currentResultsData.map(d =>
+        `<tr><td class="ng">${d.ng}</td>${d.freqs.map(v=>`<td>${v}</td>`).join('')}</tr>`
+      ).join('');
+      const content = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR&display=swap');
+body{font-family:'Noto Serif KR',serif;margin:30px;background:#fafafa;color:#222;}
+h2{color:#0d6efd;border-bottom:2px solid #0d6efd;padding-bottom:8px;}
+.meta{font-size:.85em;color:#666;margin-bottom:20px;}
+table{border-collapse:collapse;width:100%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+th{background:#0d6efd;color:#fff;padding:10px 14px;text-align:center;}
+td{padding:7px 14px;border-bottom:1px solid #eee;}
+td.ng{font-weight:600;font-size:1.05em;}
+tr:hover td{background:#f0f6ff;}
+.footer{margin-top:24px;font-size:.78em;color:#aaa;text-align:center;}
+</style></head><body>
+<h2>N-gram 분석 결과</h2>
+<p class="meta">생성: ${now} &nbsp;|&nbsp; Copyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</p>
+<table><thead><tr><th>N-gram</th>${this.filenames.map(n=>`<th>${n}</th>`).join('')}</tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="footer">CC BY-NC-ND 4.0 — 비영리·변경금지</div>
 </body></html>`;
-      mime = 'text/html'; ext = 'html';
+      this._triggerDownload(new Blob(['\ufeff'+content],{type:'text/html;charset=utf-8'}), 'ngram_analysis.html');
+
     } else {
-      content = `N-gram 분석 결과\n${'='.repeat(50)}\n생성: ${now}\nCopyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0\n${'='.repeat(50)}\n\n` +
+      const content = `N-gram 분석 결과\n${'='.repeat(50)}\n생성: ${now}\nCopyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0\n${'='.repeat(50)}\n\n` +
         this.currentResults.join('\n');
-      mime = 'text/plain'; ext = 'txt';
+      this._triggerDownload(new Blob(['\ufeff'+content],{type:'text/plain;charset=utf-8'}), 'ngram_analysis.txt');
     }
 
-    this._triggerDownload(new Blob(['\ufeff'+content], {type: mime+';charset=utf-8'}), `ngram_analysis.${ext}`);
     bootstrap.Modal.getInstance(document.getElementById('downloadModal'))?.hide();
   }
 
@@ -664,10 +866,15 @@ ${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
     const hanja  = this.filesData[fname];
     const idxMap = this.indexMap[fname];
 
-    // 현재 표시된 N-gram만 수집
-    const ngrams = new Set(this.currentResults.map(r => r.split(':')[0].trim()));
+    // 창 제목
+    const mode = document.getElementById('modeSelect').value;
+    const modeLabel = mode === 'common'
+      ? (document.querySelector('#fileCheckboxes input:checked')?.nextElementSibling?.textContent?.trim() || '공통')
+      : '전체';
+    const pageTitle = `${fname} × ${modeLabel} — N-gram 하이라이트`;
 
-    // 빨간색 위치 계산
+    // N-gram 위치 계산
+    const ngrams = new Set(this.currentResults.map(r => r.split(':')[0].trim()));
     const redPos = new Set();
     for (const ng of ngrams) {
       let start = 0;
@@ -681,105 +888,294 @@ ${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
       }
     }
 
-    // HTML 생성
     const total = idxMap.length;
     const red   = redPos.size;
     const ratio = total ? (red / total * 100).toFixed(2) : 0;
 
+    // 본문 HTML — for...of로 코드포인트 단위 순회
     let body = '';
-    for (let i = 0; i < orig.length; i++) {
-      const ch = orig[i];
-      if (ch === '\n')      { body += '<br>'; continue; }
-      if (ch === '\t')      { body += '&nbsp;&nbsp;&nbsp;&nbsp;'; continue; }
+    let pos = 0;
+    let prevWasNL = false;
+    for (const ch of orig) {
+      if (ch === '\n') {
+        if (prevWasNL) {
+          // 연속 빈줄 → 단락 간격 (작은 여백)
+          body += '<br style="display:block;margin:.15em 0">';
+        } else {
+          body += '<br>';
+        }
+        prevWasNL = true;
+        pos += ch.length;
+        continue;
+      }
+      prevWasNL = false;
+      if (ch === '\t') { body += '&nbsp;&nbsp;&nbsp;&nbsp;'; pos += ch.length; continue; }
       const esc = ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      body += redPos.has(i) ? `<span style="color:red;font-weight:bold">${esc}</span>` : esc;
+      body += redPos.has(pos) ? `<span class="hl">${esc}</span>` : esc;
+      pos += ch.length;
     }
 
     const langMap = {
-      ko:{ title:'분석 결과', total:'전체 한자수', hl:'해당 글자수', ratio:'비율' },
-      en:{ title:'Analysis Results', total:'Total Hanja', hl:'Highlighted', ratio:'Ratio' },
-      zh:{ title:'分析结果', total:'总汉字数', hl:'高亮字符数', ratio:'比例' },
-      ja:{ title:'分析結果', total:'総漢字数', hl:'ハイライト文字数', ratio:'比率' }
+      ko:{ total:'전체 한자수', hl:'해당 글자수', ratio:'비율', file:'파일', mode:'분석 모드' },
+      en:{ total:'Total Hanja', hl:'Highlighted', ratio:'Ratio', file:'File', mode:'Mode' },
+      zh:{ total:'总汉字数', hl:'高亮字符数', ratio:'比例', file:'文件', mode:'模式' },
+      ja:{ total:'総漢字数', hl:'ハイライト文字数', ratio:'比率', file:'ファイル', mode:'モード' }
     };
     const lt = langMap[this.currentLang] || langMap.ko;
 
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>body{font-family:'맑은 고딕','Malgun Gothic',serif;margin:20px;font-size:14px;line-height:1.8;}
-.stats{background:#f8f9fa;padding:15px;border-radius:5px;margin-bottom:20px;}
-.content{white-space:pre-wrap;word-wrap:break-word;}
-.footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #dee2e6;font-size:0.8rem;color:#6c757d;}
-</style></head><body>
-<div class="stats">
-  <h3>${lt.title}</h3>
-  <p><strong>${lt.total}:</strong> ${total}자</p>
-  <p><strong>${lt.hl}:</strong> ${red}자</p>
-  <p><strong>${lt.ratio}:</strong> ${ratio}%</p>
+    // JSON 데이터 (저장용)
+    const jsonData = JSON.stringify({
+      meta: { file: fname, mode: modeLabel, date: new Date().toISOString(),
+              totalHanja: total, highlighted: red, ratio: parseFloat(ratio),
+              copyright: 'Copyright © 2025 서담 한민수, 동명대학교', license: 'CC BY-NC-ND 4.0' },
+      ngrams: [...ngrams],
+      highlightedPositions: [...redPos].sort((a,b)=>a-b)
+    }, null, 2);
+
+    // ── 저장 스크립트 (새 창 내부) ──
+    const saveScript = `
+<script>
+const _jsonData = ${JSON.stringify(jsonData)};
+function saveAs(fmt) {
+  const title = document.title.replace(/[\\\\/:*?"<>|]/g,'_');
+  if (fmt === 'html') {
+    dl(new Blob([document.documentElement.outerHTML],{type:'text/html;charset=utf-8'}), title+'.html');
+  } else if (fmt === 'word') {
+    const wh = \`<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>\${document.title}</title>
+      <style>body{font-family:'맑은 고딕',serif;font-size:11pt;line-height:2;}
+      .hl{color:#dc2626;font-weight:bold;}
+      .statcard{display:flex;gap:12px;margin-bottom:16px;}
+      .statcard div{border:1px solid #ddd;padding:8px 14px;border-radius:4px;}
+      </style></head><body>\${document.getElementById('pageWrap').innerHTML}</body></html>\`;
+    dl(new Blob(['\\ufeff'+wh],{type:'application/msword;charset=utf-8'}), title+'.doc');
+  } else if (fmt === 'json') {
+    dl(new Blob([_jsonData],{type:'application/json;charset=utf-8'}), title+'.json');
+  }
+}
+function dl(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+// 폰트 크기 조절 (모바일 pinch-zoom 대응)
+let _fontSize = 17;
+function adjustFont(delta){
+  _fontSize = Math.min(32, Math.max(12, _fontSize + delta));
+  document.getElementById('mainBody').style.fontSize = _fontSize + 'px';
+}
+<\/script>`;
+
+    // ── 하이라이트 창 HTML ──
+    const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>${pageTitle}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ══ 메인 앱과 동일한 디자인 토큰 ══ */
+:root {
+  --brand:#1e3a5f; --brand-light:#2563eb; --accent:#dc2626;
+  --bg:#f7f6f1; --surface:#fff; --border:#e5e3db;
+  --text:#1a1a1a; --text-muted:#888;
+  --font:'Noto Serif KR','Malgun Gothic','Apple SD Gothic Neo',serif;
+  --radius:.5rem;
+}
+*, *::before, *::after { box-sizing:border-box; }
+body { margin:0; padding:0; background:var(--bg); font-family:var(--font); color:var(--text); }
+
+/* ── Toolbar (메인 Navbar와 동일 색) ── */
+#toolbar {
+  position:sticky; top:0; z-index:100;
+  background:var(--brand); color:#fff;
+  padding:10px 20px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.22);
+}
+#toolbar h1 { margin:0; font-size:.95rem; font-weight:700; letter-spacing:.02em; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#toolbar .btns { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+#toolbar button {
+  font-family:var(--font); font-size:.78rem; font-weight:600;
+  padding:5px 11px; border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.13); color:#fff; border-radius:var(--radius);
+  cursor:pointer; transition:background .15s; white-space:nowrap;
+}
+#toolbar button:hover { background:rgba(255,255,255,.28); }
+#toolbar .font-ctrl { display:flex; align-items:center; gap:4px; margin-left:6px; }
+#toolbar .font-ctrl button { padding:4px 9px; }
+
+/* ── 본문 래퍼: 전체 폭 활용 ── */
+#pageWrap {
+  width:100%;
+  max-width:1400px;       /* PC에서 충분히 넓게 */
+  margin:0 auto;
+  padding:24px 32px 60px;
+}
+
+/* ── 통계 카드 ── */
+.statcard {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;
+}
+.statcard > div {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:14px 18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06); text-align:center;
+}
+.statcard .val { font-size:1.6rem; font-weight:700; color:var(--brand); }
+.statcard .val.red { color:var(--accent); }
+.statcard .lbl { font-size:.76rem; color:var(--text-muted); margin-top:3px; }
+
+/* ── 메타바 ── */
+.metabar {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; font-size:.8rem;
+}
+.metabar span {
+  background:#eeeade; color:#555; border-radius:4px; padding:3px 10px;
+}
+
+/* ── 본문 ── */
+#mainBody {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:28px 36px;
+  font-size:17px; line-height:1.7;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);
+  word-break:break-all;
+  transition:font-size .15s;
+}
+.hl { color:var(--accent); font-weight:700; }
+
+/* ── 푸터 ── */
+.pgfooter { margin-top:28px; text-align:center; font-size:.74rem; color:#bbb; }
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar { width:7px; }
+::-webkit-scrollbar-track { background:#ece9e0; }
+::-webkit-scrollbar-thumb { background:#b5b0a5; border-radius:4px; }
+
+/* ── 반응형 ── */
+@media(max-width:768px){
+  #pageWrap { padding:14px 12px 40px; }
+  #mainBody { padding:16px; font-size:16px; }
+  .statcard { grid-template-columns:1fr 1fr; }
+  #toolbar h1 { font-size:.82rem; }
+}
+@media(max-width:480px){
+  .statcard { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <h1>📄 ${pageTitle}</h1>
+  <div class="btns">
+    <button onclick="saveAs('html')">💾 HTML</button>
+    <button onclick="saveAs('word')">📝 Word</button>
+    <button onclick="saveAs('json')">{ } JSON</button>
+    <div class="font-ctrl">
+      <button onclick="adjustFont(-1)" title="글자 작게">A−</button>
+      <button onclick="adjustFont(1)"  title="글자 크게">A+</button>
+    </div>
+  </div>
 </div>
-<div class="content">${body}</div>
-<div class="footer">Copyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</div>
+<div id="pageWrap">
+  <div class="statcard">
+    <div><div class="val">${total.toLocaleString()}</div><div class="lbl">${lt.total}</div></div>
+    <div><div class="val red">${red.toLocaleString()}</div><div class="lbl">${lt.hl}</div></div>
+    <div><div class="val">${ratio}%</div><div class="lbl">${lt.ratio}</div></div>
+  </div>
+  <div class="metabar">
+    <span>${lt.file}: <strong>${fname}</strong></span>
+    <span>${lt.mode}: <strong>${modeLabel}</strong></span>
+    <span>${new Date().toLocaleString()}</span>
+  </div>
+  <div id="mainBody">${body}</div>
+  <div class="pgfooter">Copyright © 2025 서담 한민수, 동명대학교 &nbsp;|&nbsp; CC BY-NC-ND 4.0</div>
+</div>
+${saveScript}
 </body></html>`;
 
     const w = window.open('', '_blank');
-    if (w) { w.document.write(html); w.document.close(); }
-    else {
-      this._triggerDownload(new Blob([html], {type:'text/html;charset=utf-8'}), `highlight_${fname}.html`);
-    }
+    if (w) { w.document.write(html); w.document.close(); w.document.title = pageTitle; }
+    else { this._triggerDownload(new Blob([html],{type:'text/html;charset=utf-8'}), `${fname}_highlight.html`); }
     bootstrap.Modal.getInstance(document.getElementById('fileSelectionModal'))?.hide();
   }
 
-  // ── 워드클라우드 (Canvas 기반) ────────────────────────
+  // ── 워드클라우드 ─────────────────────────────────────
   _showWordcloud() {
     if (!this.currentResults.length) { this._alert(this._t('noValidData'), 'danger'); return; }
 
     const freqMap = new Map();
-    this.currentResults.forEach(r => {
-      const ng  = r.split(':')[0].trim();
-      const tot = [...r.matchAll(/:\s*(\d+)/g)].reduce((s, m) => s + parseInt(m[1]), 0);
-      freqMap.set(ng, tot);
+    this.currentResultsData.forEach(d => {
+      const tot = d.freqs.reduce((s,v) => s+v, 0);
+      if (tot > 0) freqMap.set(d.ng, tot);
     });
 
-    const canvas  = document.getElementById('wcCanvas');
-    const ctx     = canvas.getContext('2d');
+    const canvas = document.getElementById('wcCanvas');
+    canvas.width  = 900;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#ffffff';
+
+    // 배경: 연한 크림색
+    ctx.fillStyle = '#fffdf7';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 간단한 캔버스 워드클라우드 (나선형 배치)
-    const entries = [...freqMap.entries()].sort((a,b) => b[1]-a[1]).slice(0, 80);
+    // 빈도 상위 300개 (항목 수 대폭 증가)
+    const entries = [...freqMap.entries()].sort((a,b) => b[1]-a[1]).slice(0, 300);
     const maxFreq = entries[0]?.[1] || 1;
     const minFreq = entries[entries.length-1]?.[1] || 1;
-    const placed  = [];
 
-    const hues = [0,30,60,120,180,210,240,270,300,330];
-    let placed_count = 0;
+    // Google Fonts Noto Serif KR (웹 안전 한중일 폰트)
+    // 브라우저가 이미 로드한 폰트 사용 + 시스템 폰트 폴백
+    const FONT_STACK = "'Noto Serif KR', 'Noto Serif SC', 'Noto Serif TC', 'Noto Serif JP', 'Source Han Serif', 'SimSun', serif";
+
+    // 파스텔 팔레트 (세련된 색조)
+    const palette = [
+      '#2563eb','#7c3aed','#db2777','#059669','#d97706',
+      '#0891b2','#be123c','#4338ca','#15803d','#b45309',
+      '#6d28d9','#0369a1','#9d174d','#1e40af','#065f46'
+    ];
+
+    const placed = [];
+    let placedCount = 0;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
 
     for (const [word, freq] of entries) {
-      const ratio = (freq - minFreq) / (Math.max(maxFreq - minFreq, 1));
-      const size  = Math.round(14 + ratio * 52);
-      const hue   = hues[placed_count % hues.length];
-      ctx.font    = `bold ${size}px 'Microsoft YaHei', serif`;
-      ctx.fillStyle = `hsl(${hue},70%,40%)`;
-      const w = ctx.measureText(word).width;
-      const h = size;
+      const t    = (freq - minFreq) / Math.max(maxFreq - minFreq, 1);
+      // 크기 범위: 10px ~ 58px
+      const size = Math.round(10 + t * 48);
+      const color = palette[placedCount % palette.length];
 
-      // 나선형 탐색
-      let placed_ok = false;
-      for (let r = 0; r < 350; r += 2) {
-        const angle = r * 0.25;
-        const x = canvas.width/2  + r * Math.cos(angle) - w/2;
-        const y = canvas.height/2 + r * Math.sin(angle) + h/2;
-        if (x < 0 || x + w > canvas.width || y - h < 0 || y > canvas.height) continue;
+      ctx.font      = `${size <= 20 ? '400' : '700'} ${size}px ${FONT_STACK}`;
+      ctx.fillStyle = color;
+      const tw = ctx.measureText(word).width;
+      const th = size;
+
+      // 황금각 나선으로 배치 시도 (더 촘촘히 채움)
+      let ok = false;
+      for (let r = 0; r < 600; r += 1.5) {
+        const angle = r * 0.28;
+        const x = cx + r * Math.cos(angle) - tw / 2;
+        const y = cy + r * Math.sin(angle) + th / 2;
+        if (x < 2 || x + tw > canvas.width - 2 || y - th < 2 || y > canvas.height - 2) continue;
         const overlap = placed.some(p =>
-          x < p.x + p.w + 4 && x + w > p.x - 4 && y - h < p.y + 4 && y > p.y - p.h - 4
+          x < p.x + p.w + 3 && x + tw > p.x - 3 &&
+          y - th < p.y + 3   && y > p.y - p.h - 3
         );
         if (!overlap) {
           ctx.fillText(word, x, y);
-          placed.push({x, y, w, h});
-          placed_ok = true;
+          placed.push({ x, y, w: tw, h: th });
+          ok = true;
           break;
         }
       }
-      if (placed_ok) placed_count++;
+      if (ok) placedCount++;
     }
 
     new bootstrap.Modal(document.getElementById('wcModal')).show();
@@ -803,9 +1199,19 @@ ${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
     URL.revokeObjectURL(url);
   }
 
-  _showLoading(msg) {
+  _showLoading(msg, pct) {
     document.getElementById('loadingMessage').textContent = msg;
-    new bootstrap.Modal(document.getElementById('loadingModal')).show();
+    const wrap = document.getElementById('loadingProgressWrap');
+    const bar  = document.getElementById('loadingProgress');
+    if (pct !== undefined) {
+      wrap.style.display = 'block';
+      bar.style.width = pct + '%';
+      bar.setAttribute('aria-valuenow', pct);
+    } else {
+      wrap.style.display = 'none';
+    }
+    const existing = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+    if (!existing) new bootstrap.Modal(document.getElementById('loadingModal')).show();
   }
   _hideLoading() {
     bootstrap.Modal.getInstance(document.getElementById('loadingModal'))?.hide();
