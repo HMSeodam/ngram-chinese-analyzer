@@ -37,7 +37,7 @@
 
 ## 라이선스
 
-Copyright (c) 2026 **서담 한민수 (Han Minsu), 동명대학교 (Tongmyong University)**
+Copyright (c) 2025 **서담 한민수 (Han Minsu), 동명대학교 (Tongmyong University)**
 
 이 프로젝트는 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ko) 라이선스를 따릅니다.
 
@@ -53,6 +53,6 @@ Copyright (c) 2026 **서담 한민수 (Han Minsu), 동명대학교 (Tongmyong Un
 
 이 도구를 연구에 사용하셨다면 다음과 같이 인용해 주세요:
 
-> 한민수 (2026). N-gram Chinese Text Analyzer. GitHub. https://github.com/HMSeodam/ngram-chinese-analyzer
+> 한민수 (2025). N-gram Chinese Text Analyzer. GitHub. https://github.com/HMSeodam/ngram-chinese-analyzer
 
 또는 `CITATION.cff` 참고.
