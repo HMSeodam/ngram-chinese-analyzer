@@ -123,7 +123,7 @@
           <i class="fas fa-highlighter me-1"></i><span data-i18n="applyHighlight">하이라이트 적용</span>
         </button>
         <button id="resetBtn" class="btn btn-outline-danger">
-          <i class="fas fa-rotate-left me-1"></i>초기화
+          <i class="fas fa-rotate-left me-1"></i><span data-i18n="reset">초기화</span>
         </button>
       </div>
     </div>
@@ -316,7 +316,8 @@ const LOCALES = {
     selectFiles:"파일을 선택하세요", analyzing:"분석 중...", applyingHighlight:"하이라이트 적용 중...",
     downloading:"다운로드 중...", ngramRangeError:"N-gram 범위가 올바르지 않습니다.",
     analysisComplete:"분석이 완료되었습니다.", analyzeFirst:"먼저 파일을 분석해주세요.",
-    selectFile:"파일을 선택해주세요.", selectedFilesCount:"선택된 파일:"
+    selectFile:"파일을 선택해주세요.", selectedFilesCount:"선택된 파일:",
+    reset:"초기화", resetComplete:"초기화되었습니다."
   },
   en: {
     fileUpload:"Upload Files", minNgram:"Min N-gram (from 2)", maxNgram:"Max N-gram (e.g., 4)",
@@ -333,7 +334,8 @@ const LOCALES = {
     selectFiles:"Select files", analyzing:"Analyzing...", applyingHighlight:"Applying highlight...",
     downloading:"Downloading...", ngramRangeError:"N-gram range is invalid.",
     analysisComplete:"Analysis completed.", analyzeFirst:"Please analyze files first.",
-    selectFile:"Please select a file.", selectedFilesCount:"Selected files:"
+    selectFile:"Please select a file.", selectedFilesCount:"Selected files:",
+    reset:"Reset", resetComplete:"Reset completed."
   },
   zh: {
     fileUpload:"上传文件", minNgram:"最小N-gram（从2开始）", maxNgram:"最大N-gram（例如：4）",
@@ -350,7 +352,8 @@ const LOCALES = {
     selectFiles:"选择文件", analyzing:"分析中...", applyingHighlight:"应用高亮中...",
     downloading:"下载中...", ngramRangeError:"N-gram范围无效。",
     analysisComplete:"分析完成。", analyzeFirst:"请先分析文件。",
-    selectFile:"请选择文件。", selectedFilesCount:"已选择文件:"
+    selectFile:"请选择文件。", selectedFilesCount:"已选择文件:",
+    reset:"重置", resetComplete:"已重置。"
   },
   ja: {
     fileUpload:"ファイルをアップロード", minNgram:"最小 N-gram（2から）", maxNgram:"最大 N-gram（例：4）",
@@ -367,7 +370,8 @@ const LOCALES = {
     selectFiles:"ファイルを選択", analyzing:"分析中...", applyingHighlight:"ハイライト適用中...",
     downloading:"ダウンロード中...", ngramRangeError:"N-gram範囲が無効です。",
     analysisComplete:"分析が完了しました。", analyzeFirst:"まずファイルを分析してください。",
-    selectFile:"ファイルを選択してください。", selectedFilesCount:"選択されたファイル:"
+    selectFile:"ファイルを選択してください。", selectedFilesCount:"選択されたファイル:",
+    reset:"リセット", resetComplete:"リセットしました。"
   }
 };
 
@@ -762,7 +766,7 @@ class NgramAnalyzer {
     ['wordcloudBtn','downloadBtn','applyBtn'].forEach(id => {
       document.getElementById(id).disabled = true;
     });
-    this._alert('초기화되었습니다.', 'success');
+    this._alert(this._t('resetComplete'), 'success');
   }
 
   // ── 다운로드 ──────────────────────────────────────────
