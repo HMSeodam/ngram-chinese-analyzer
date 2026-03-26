@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>N-gram Chinese Text Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* ── Custom Styles ── */
+    body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .navbar-brand { font-weight: 600; font-size: 1.25rem; }
+    .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); border-radius: 0.5rem; }
+    .card-header { background-color: #fff; border-bottom: 1px solid #dee2e6; font-weight: 600; }
+    .btn { border-radius: 0.375rem; font-weight: 500; transition: all 0.15s ease-in-out; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15); }
+    .btn:disabled { transform: none; box-shadow: none; }
+    .form-control, .form-select { border-radius: 0.375rem; border: 1px solid #ced4da; transition: border-color 0.15s, box-shadow 0.15s; }
+    .form-control:focus, .form-select:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25); }
+    .table { border-radius: 0.5rem; overflow: hidden; }
+    .table th { background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; font-weight: 600; }
+    .table td { vertical-align: middle; }
+    .badge { font-size: 0.875rem; padding: 0.5rem 0.75rem; }
+    .ngram-row:hover { background-color: #f8f9fa; }
+    .ngram-text { font-family: 'Microsoft YaHei', 'SimSun', serif; font-size: 1.1rem; font-weight: 500; }
+    .frequency-cell { text-align: center; font-weight: 600; color: #495057; }
+    .file-checkbox { margin-right: 1rem; margin-bottom: 0.5rem; }
+    .spinner-border { width: 3rem; height: 3rem; }
+    .modal-content { border: none; border-radius: 0.5rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15); }
+    .modal-header, .modal-footer { border-color: #dee2e6; background-color: #f8f9fa; }
+    .alert { border: none; border-radius: 0.5rem; font-weight: 500; }
+    .table-responsive { border-radius: 0.5rem; overflow: hidden; }
+    .fa-3x { font-size: 3rem; opacity: 0.5; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    @media (max-width: 768px) {
+      .container-fluid { padding-left: 1rem; padding-right: 1rem; }
+      .btn { margin-bottom: 0.5rem; width: 100%; }
+      .card-body { padding: 1rem; }
+    }
+
+    /* ── 워드클라우드 캔버스 ── */
+    #wcCanvas { max-width: 100%; border-radius: 0.5rem; background: #fff; }
+
+    /* ── 저작권 푸터 ── */
+    footer.app-footer {
+      margin-top: 2rem;
+      padding: 1.5rem 0;
+      border-top: 1px solid #dee2e6;
+      font-size: 0.82rem;
+      color: #6c757d;
+      text-align: center;
+    }
+    footer.app-footer a { color: #6c757d; text-decoration: underline dotted; }
+    footer.app-footer a:hover { color: #343a40; }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-chart-bar me-2"></i>N-gram Chinese Text Analyzer
+    </a>
+    <div class="dropdown ms-auto">
+      <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="fas fa-globe me-1"></i><span id="currentLangLabel">한국어</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="ko">한국어</a></li>
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="en">English</a></li>
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="zh">中文</a></li>
+        <li><a class="dropdown-item lang-btn" href="#" data-lang="ja">日本語</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid py-4">
+
+  <!-- ── File Upload ── -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-upload me-2"></i><span data-i18n="fileUpload">파일 업로드</span></h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <input id="fileInput" type="file" multiple class="form-control" accept=".txt,.html,.hwp">
+          <div id="selectedFilesInfo" class="mt-2" style="display:none;">
+            <small class="text-muted" data-i18n="selectedFilesCount">선택된 파일:</small>
+            <div id="selectedFilesList" class="mt-1"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="row">
+            <div class="col-6">
+              <label class="form-label" data-i18n="minNgram">N-gram 최소 값</label>
+              <input id="minN" type="number" class="form-control" value="2" min="1" max="10">
+            </div>
+            <div class="col-6">
+              <label class="form-label" data-i18n="maxNgram">N-gram 최대 값</label>
+              <input id="maxN" type="number" class="form-control" value="4" min="1" max="10">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3">
+        <button id="analyzeBtn" class="btn btn-primary me-2">
+          <i class="fas fa-play me-1"></i><span data-i18n="analyze">분석 시작</span>
+        </button>
+        <button id="wordcloudBtn" class="btn btn-success me-2" disabled>
+          <i class="fas fa-cloud me-1"></i><span data-i18n="wordcloud">워드클라우드</span>
+        </button>
+        <button id="downloadBtn" class="btn btn-outline-secondary me-2" disabled>
+          <i class="fas fa-download me-1"></i><span data-i18n="download">다운로드</span>
+        </button>
+        <button id="applyBtn" class="btn btn-warning" disabled>
+          <i class="fas fa-highlighter me-1"></i><span data-i18n="applyHighlight">하이라이트 적용</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Analysis Controls ── -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-filter me-2"></i><span data-i18n="analysisControls">분석 제어</span></h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <label class="form-label" data-i18n="mode">모드</label>
+          <select id="modeSelect" class="form-select">
+            <option value="all" data-i18n="all">전체 분석</option>
+            <option value="common" data-i18n="common">공통 부분</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" data-i18n="sort">정렬 기준</label>
+          <select id="sortSelect" class="form-select">
+            <option value="asc" data-i18n="freqAsc">빈도수 오름차순</option>
+            <option value="desc" data-i18n="freqDesc">빈도수 내림차순</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <div id="commonControls" style="display:none;">
+            <label class="form-label" data-i18n="selectCommon">공통 부분 선택</label>
+            <div id="fileCheckboxes" class="mb-2"></div>
+            <div class="form-check">
+              <input id="includeAll" class="form-check-input" type="checkbox">
+              <label class="form-check-label" for="includeAll" data-i18n="includeAll">모든 교집합 포함</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Results ── -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="fas fa-list me-2"></i><span data-i18n="results">분석 결과</span></h5>
+      <span id="dataCount" class="badge bg-secondary">0</span>
+    </div>
+    <div class="card-body">
+      <div id="resultsArea" class="table-responsive">
+        <div class="text-center text-muted py-5">
+          <i class="fas fa-file-alt fa-3x mb-3"></i>
+          <p data-i18n="noData">먼저 분석을 수행하세요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container-fluid -->
+
+<!-- ── Footer ── -->
+<footer class="app-footer">
+  <div class="container">
+    <p class="mb-1">
+      <strong>N-gram Chinese Text Analyzer</strong> &nbsp;·&nbsp;
+      Copyright &copy; 2026 <strong>서담 한민수 (Han Minsu), 동명대학교 (Tongmyong University)</strong>
+    </p>
+    <p class="mb-1">
+      <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">
+        <img src="https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg" alt="CC BY-NC-ND 4.0" style="vertical-align:middle;">
+      </a>
+      &nbsp;
+      이 도구는 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ko" target="_blank">CC BY-NC-ND 4.0</a> 라이선스를 따릅니다.
+      비영리 목적에 한해 저작자 표시 조건으로 사용 가능합니다.
+      상업적 이용·변경 배포 시 저작자 허가 필요.
+    </p>
+    <p class="mb-0 text-muted" style="font-size:0.77rem;">
+      인용 방법: 한민수 (2026). N-gram Chinese Text Analyzer. GitHub.
+      <a href="https://github.com/HMSeodam/ngram-chinese-analyzer" target="_blank">https://github.com/HMSeodam/ngram-chinese-analyzer</a>
+    </p>
+  </div>
+</footer>
+
+<!-- ── Loading Modal ── -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 id="loadingMessage"></h5>
+        <p class="text-muted mb-0" data-i18n="pleaseWait">잠시만 기다려 주세요.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── File Selection Modal (Highlight) ── -->
+<div class="modal fade" id="fileSelectionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" data-i18n="selectFileForHighlight">하이라이트 적용할 파일 선택</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="fileSelectionList"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">취소</button>
+        <button type="button" class="btn btn-primary" id="applyHighlightBtn" data-i18n="apply">적용</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Download Modal ── -->
+<div class="modal fade" id="downloadModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" data-i18n="downloadOptions">다운로드 옵션</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatHtml" value="html" checked>
+          <label class="form-check-label" for="formatHtml" data-i18n="downloadHtml">HTML 파일 (.html)</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="downloadFormat" id="formatTxt" value="txt">
+          <label class="form-check-label" for="formatTxt" data-i18n="downloadTxt">텍스트 파일 (.txt)</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">취소</button>
+        <button type="button" class="btn btn-primary" id="confirmDownloadBtn" data-i18n="download">다운로드</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Wordcloud Modal ── -->
+<div class="modal fade" id="wcModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" data-i18n="wordcloud">워드클라우드</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <canvas id="wcCanvas" width="800" height="500"></canvas>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" id="wcDownloadBtn">
+          <i class="fas fa-download me-1"></i>PNG 저장
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+//  다국어 로케일
+// ═══════════════════════════════════════════════════════════
+const LOCALES = {
+  ko: {
+    fileUpload:"파일 업로드", minNgram:"N-gram 최소 값(2부터)", maxNgram:"N-gram 최대 값(예: 4)",
+    analyze:"분석 시작", wordcloud:"워드클라우드", download:"다운로드", applyHighlight:"하이라이트 적용",
+    mode:"모드", all:"전체 분석", common:"공통 부분", selectCommon:"공통 부분 선택",
+    includeAll:"모든 교집합 포함", sort:"정렬 기준", freqAsc:"빈도수 오름차순", freqDesc:"빈도수 내림차순",
+    dataCount:"데이터 항목 수: {count}개", needTwo:"최소 2개 이상의 파일을 선택해야 합니다.",
+    noData:"먼저 분석을 수행하세요.", analysisControls:"분석 제어", results:"분석 결과",
+    processing:"처리 중...", pleaseWait:"잠시만 기다려 주세요.", selectFileForHighlight:"하이라이트 적용할 파일 선택",
+    cancel:"취소", apply:"적용", downloadOptions:"다운로드 옵션", downloadTxt:"텍스트 파일 (.txt)",
+    downloadHtml:"HTML 파일 (.html)", error:"오류", success:"성공", fileReadError:"파일 읽기 오류",
+    analysisError:"분석 중 오류가 발생했습니다.", highlightError:"하이라이트 적용 중 오류가 발생했습니다.",
+    downloadError:"다운로드 중 오류가 발생했습니다.", noValidData:"유효한 데이터가 없습니다.",
+    selectFiles:"파일을 선택하세요", analyzing:"분석 중...", applyingHighlight:"하이라이트 적용 중...",
+    downloading:"다운로드 중...", ngramRangeError:"N-gram 범위가 올바르지 않습니다.",
+    analysisComplete:"분석이 완료되었습니다.", analyzeFirst:"먼저 파일을 분석해주세요.",
+    selectFile:"파일을 선택해주세요.", selectedFilesCount:"선택된 파일:"
+  },
+  en: {
+    fileUpload:"Upload Files", minNgram:"Min N-gram (from 2)", maxNgram:"Max N-gram (e.g., 4)",
+    analyze:"Start Analysis", wordcloud:"Word Cloud", download:"Download", applyHighlight:"Apply Highlight",
+    mode:"Mode", all:"All Analysis", common:"Common Parts", selectCommon:"Select Common Parts",
+    includeAll:"Include All Intersections", sort:"Sort By", freqAsc:"Frequency Ascending", freqDesc:"Frequency Descending",
+    dataCount:"Data Items: {count}", needTwo:"You must select at least two files.",
+    noData:"Please run the analysis first.", analysisControls:"Analysis Controls", results:"Analysis Results",
+    processing:"Processing...", pleaseWait:"Please wait...", selectFileForHighlight:"Select File for Highlight",
+    cancel:"Cancel", apply:"Apply", downloadOptions:"Download Options", downloadTxt:"Text File (.txt)",
+    downloadHtml:"HTML File (.html)", error:"Error", success:"Success", fileReadError:"File read error",
+    analysisError:"Analysis error occurred.", highlightError:"Highlight application error.",
+    downloadError:"Download error occurred.", noValidData:"No valid data.",
+    selectFiles:"Select files", analyzing:"Analyzing...", applyingHighlight:"Applying highlight...",
+    downloading:"Downloading...", ngramRangeError:"N-gram range is invalid.",
+    analysisComplete:"Analysis completed.", analyzeFirst:"Please analyze files first.",
+    selectFile:"Please select a file.", selectedFilesCount:"Selected files:"
+  },
+  zh: {
+    fileUpload:"上传文件", minNgram:"最小N-gram（从2开始）", maxNgram:"最大N-gram（例如：4）",
+    analyze:"开始分析", wordcloud:"词云", download:"下载", applyHighlight:"应用高亮",
+    mode:"模式", all:"全部分析", common:"公共部分", selectCommon:"选择公共部分",
+    includeAll:"包含所有交集", sort:"排序方式", freqAsc:"频率升序", freqDesc:"频率降序",
+    dataCount:"数据项数：{count}", needTwo:"必须选择至少两个文件。",
+    noData:"请先运行分析。", analysisControls:"分析控制", results:"分析结果",
+    processing:"处理中...", pleaseWait:"请稍候...", selectFileForHighlight:"选择要高亮的文件",
+    cancel:"取消", apply:"应用", downloadOptions:"下载选项", downloadTxt:"文本文件 (.txt)",
+    downloadHtml:"HTML文件 (.html)", error:"错误", success:"成功", fileReadError:"文件读取错误",
+    analysisError:"分析过程中发生错误。", highlightError:"高亮应用过程中发生错误。",
+    downloadError:"下载过程中发生错误。", noValidData:"没有有效数据。",
+    selectFiles:"选择文件", analyzing:"分析中...", applyingHighlight:"应用高亮中...",
+    downloading:"下载中...", ngramRangeError:"N-gram范围无效。",
+    analysisComplete:"分析完成。", analyzeFirst:"请先分析文件。",
+    selectFile:"请选择文件。", selectedFilesCount:"已选择文件:"
+  },
+  ja: {
+    fileUpload:"ファイルをアップロード", minNgram:"最小 N-gram（2から）", maxNgram:"最大 N-gram（例：4）",
+    analyze:"分析開始", wordcloud:"ワードクラウド", download:"ダウンロード", applyHighlight:"ハイライト適用",
+    mode:"モード", all:"全体分析", common:"共通部分", selectCommon:"共通部分を選択",
+    includeAll:"すべての共通項を含む", sort:"ソート基準", freqAsc:"頻度昇順", freqDesc:"頻度降順",
+    dataCount:"データ項目数：{count}", needTwo:"ファイルを最低2つ選択してください。",
+    noData:"まず分析を実行してください。", analysisControls:"分析制御", results:"分析結果",
+    processing:"処理中...", pleaseWait:"お待ちください...", selectFileForHighlight:"ハイライト適用するファイルを選択",
+    cancel:"キャンセル", apply:"適用", downloadOptions:"ダウンロードオプション", downloadTxt:"テキストファイル (.txt)",
+    downloadHtml:"HTMLファイル (.html)", error:"エラー", success:"成功", fileReadError:"ファイル読み込みエラー",
+    analysisError:"分析中にエラーが発生しました。", highlightError:"ハイライト適用中にエラーが発生しました。",
+    downloadError:"ダウンロード中にエラーが発生しました。", noValidData:"有効なデータがありません。",
+    selectFiles:"ファイルを選択", analyzing:"分析中...", applyingHighlight:"ハイライト適用中...",
+    downloading:"ダウンロード中...", ngramRangeError:"N-gram範囲が無効です。",
+    analysisComplete:"分析が完了しました。", analyzeFirst:"まずファイルを分析してください。",
+    selectFile:"ファイルを選択してください。", selectedFilesCount:"選択されたファイル:"
+  }
+};
+
+const LANG_LABELS = { ko:"한국어", en:"English", zh:"中文", ja:"日本語" };
+
+// ═══════════════════════════════════════════════════════════
+//  한자 패턴
+// ═══════════════════════════════════════════════════════════
+const HANJA_RE = /[\u4e00-\u9fff\u3400-\u4DBF\uF900-\uFAFF\u{20000}-\u{2A6DF}]/u;
+
+// ═══════════════════════════════════════════════════════════
+//  NgramAnalyzer 클래스 (순수 JS, 서버 불필요)
+// ═══════════════════════════════════════════════════════════
+class NgramAnalyzer {
+  constructor() {
+    this.filesData       = {};   // filename -> hanja-only string
+    this.indexMap        = {};   // filename -> original indices of hanja chars
+    this.originalTexts   = {};   // filename -> full original text
+    this.ngramResults    = {};   // filename -> Map<ngram, count>
+    this.allNgrams       = new Set();
+    this.filenames       = [];
+    this.currentResults  = [];
+    this.currentLang     = this._getLang();
+
+    this._applyLocale();
+    this._initEvents();
+  }
+
+  // ── 언어 ──────────────────────────────────────────────
+  _getLang() {
+    return localStorage.getItem('ngram_lang') || 'ko';
+  }
+  _t(key) {
+    return (LOCALES[this.currentLang] || LOCALES.ko)[key] || key;
+  }
+  _applyLocale() {
+    document.documentElement.lang = this.currentLang;
+    document.getElementById('currentLangLabel').textContent = LANG_LABELS[this.currentLang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const txt = this._t(key);
+      if (txt) el.textContent = txt;
+    });
+    // select options
+    document.querySelector('#modeSelect option[value="all"]').textContent = this._t('all');
+    document.querySelector('#modeSelect option[value="common"]').textContent = this._t('common');
+    document.querySelector('#sortSelect option[value="asc"]').textContent = this._t('freqAsc');
+    document.querySelector('#sortSelect option[value="desc"]').textContent = this._t('freqDesc');
+  }
+
+  // ── 이벤트 ────────────────────────────────────────────
+  _initEvents() {
+    document.getElementById('fileInput').addEventListener('change', e => this._onFileChange(e));
+    document.getElementById('analyzeBtn').addEventListener('click', () => this._analyze());
+    document.getElementById('wordcloudBtn').addEventListener('click', () => this._showWordcloud());
+    document.getElementById('downloadBtn').addEventListener('click', () => this._showDownloadModal());
+    document.getElementById('applyBtn').addEventListener('click', () => this._showHighlightModal());
+    document.getElementById('modeSelect').addEventListener('change', e => this._onModeChange(e.target.value));
+    document.getElementById('sortSelect').addEventListener('change', () => this._applyFilter());
+    document.getElementById('includeAll').addEventListener('change', () => this._applyFilter());
+    document.getElementById('confirmDownloadBtn').addEventListener('click', () => this._download());
+    document.getElementById('applyHighlightBtn').addEventListener('click', () => this._applyHighlight());
+    document.getElementById('wcDownloadBtn').addEventListener('click', () => this._downloadWC());
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        this.currentLang = btn.getAttribute('data-lang');
+        localStorage.setItem('ngram_lang', this.currentLang);
+        this._applyLocale();
+      });
+    });
+  }
+
+  // ── 파일 선택 ─────────────────────────────────────────
+  _onFileChange(e) {
+    const files = e.target.files;
+    if (files.length < 2) {
+      this._alert(this._t('needTwo'), 'danger');
+      e.target.value = '';
+      document.getElementById('selectedFilesInfo').style.display = 'none';
+      return;
+    }
+    const listDiv = document.getElementById('selectedFilesList');
+    listDiv.innerHTML = Array.from(files).map(f =>
+      `<span class="badge bg-primary me-1 mb-1">${f.name.replace(/\.[^/.]+$/, '')}</span>`
+    ).join('');
+    document.getElementById('selectedFilesInfo').style.display = 'block';
+  }
+
+  // ── 분석 (파일 읽기 → N-gram) ─────────────────────────
+  async _analyze() {
+    const files = document.getElementById('fileInput').files;
+    const minN  = parseInt(document.getElementById('minN').value);
+    const maxN  = parseInt(document.getElementById('maxN').value);
+    if (files.length < 2) { this._alert(this._t('needTwo'), 'danger'); return; }
+    if (minN < 1 || maxN < minN) { this._alert(this._t('ngramRangeError'), 'danger'); return; }
+
+    this._showLoading(this._t('analyzing'));
+
+    try {
+      // 비동기로 파일 읽기
+      await Promise.all(Array.from(files).map(f => this._readFile(f)));
+      this._buildNgrams(minN, maxN);
+      this._applyFilter();
+      this._setupCheckboxes();
+      this._enableBtns();
+      this._alert(this._t('analysisComplete'), 'success');
+    } catch(err) {
+      this._alert(err.message, 'danger');
+    } finally {
+      this._hideLoading();
+    }
+  }
+
+  _readFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const content = e.target.result;
+        const name = file.name.replace(/\.[^/.]+$/, '');
+        this.originalTexts[name] = content;
+        // 한자만 추출 + 위치 인덱스 보존
+        let hanja = '', indices = [];
+        for (let i = 0; i < content.length; i++) {
+          if (HANJA_RE.test(content[i])) { hanja += content[i]; indices.push(i); }
+        }
+        this.filesData[name] = hanja;
+        this.indexMap[name]  = indices;
+        resolve();
+      };
+      reader.onerror = () => reject(new Error(this._t('fileReadError') + ': ' + file.name));
+      reader.readAsText(file, 'utf-8');
+    });
+  }
+
+  _buildNgrams(minN, maxN) {
+    this.ngramResults = {};
+    this.allNgrams    = new Set();
+    this.filenames    = Object.keys(this.filesData);
+
+    for (const name of this.filenames) {
+      const text = this.filesData[name];
+      const map  = new Map();
+      for (let n = minN; n <= maxN; n++) {
+        for (let i = 0; i <= text.length - n; i++) {
+          const ng = text.slice(i, i + n);
+          map.set(ng, (map.get(ng) || 0) + 1);
+        }
+      }
+      this.ngramResults[name] = map;
+      for (const k of map.keys()) this.allNgrams.add(k);
+    }
+  }
+
+  // ── 필터 / 정렬 ───────────────────────────────────────
+  _applyFilter() {
+    if (!this.filenames.length) return;
+    const mode      = document.getElementById('modeSelect').value;
+    const sortDir   = document.getElementById('sortSelect').value;
+    const incAll    = document.getElementById('includeAll').checked;
+
+    let ngrams = [...this.allNgrams];
+
+    if (mode === 'common') {
+      const selected = Array.from(
+        document.querySelectorAll('#fileCheckboxes input:checked')
+      ).map(cb => cb.value).filter(v => this.filenames.includes(v));
+
+      if (selected.length > 0) {
+        ngrams = ngrams.filter(ng => {
+          if (incAll) {
+            return selected.every(f => (this.ngramResults[f]?.get(ng) || 0) > 0);
+          } else {
+            const appearsIn = new Set(this.filenames.filter(f => (this.ngramResults[f]?.get(ng)||0) > 0));
+            const selSet    = new Set(selected);
+            return appearsIn.size === selSet.size && [...selSet].every(f => appearsIn.has(f));
+          }
+        });
+      }
+    }
+
+    // 정렬
+    ngrams.sort((a, b) => {
+      const ta = this.filenames.reduce((s, f) => s + (this.ngramResults[f]?.get(a)||0), 0);
+      const tb = this.filenames.reduce((s, f) => s + (this.ngramResults[f]?.get(b)||0), 0);
+      return sortDir === 'asc' ? ta - tb : tb - ta;
+    });
+
+    // 결과 문자열 생성
+    this.currentResults = ngrams.map(ng => {
+      const parts = this.filenames.map(f => `${f}: ${this.ngramResults[f]?.get(ng)||0}`);
+      return `${ng}: ${parts.join(', ')}`;
+    });
+
+    this._renderResults(this.currentResults);
+    const cnt = document.getElementById('dataCount');
+    cnt.textContent = this._t('dataCount').replace('{count}', this.currentResults.length);
+  }
+
+  // ── 결과 렌더링 ───────────────────────────────────────
+  _renderResults(results) {
+    const area = document.getElementById('resultsArea');
+    if (!results.length) {
+      area.innerHTML = `<div class="text-center text-muted py-5">
+        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+        <p>${this._t('noValidData')}</p></div>`;
+      return;
+    }
+    const table = document.createElement('table');
+    table.className = 'table table-striped table-hover';
+    table.innerHTML = `<thead><tr>
+      <th style="width:40%">N-gram</th>
+      ${this.filenames.map(n => `<th class="text-center">${n}</th>`).join('')}
+    </tr></thead>`;
+    const tbody = document.createElement('tbody');
+    results.forEach(r => {
+      const [ngPart, ...rest] = r.split(': ');
+      const freqStr = rest.join(': ');
+      const tr = document.createElement('tr');
+      tr.className = 'ngram-row';
+      const freqs = this.filenames.map(f => {
+        const m = freqStr.match(new RegExp(`${f}:\\s*(\\d+)`));
+        return m ? m[1] : '0';
+      });
+      tr.innerHTML = `<td class="ngram-text">${ngPart}</td>` +
+        freqs.map(v => `<td class="frequency-cell">${v}</td>`).join('');
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    area.innerHTML = '';
+    area.appendChild(table);
+  }
+
+  // ── 체크박스 셋업 ─────────────────────────────────────
+  _setupCheckboxes() {
+    const box = document.getElementById('fileCheckboxes');
+    box.innerHTML = '';
+    this.filenames.forEach(name => {
+      const d = document.createElement('div');
+      d.className = 'form-check file-checkbox';
+      d.innerHTML = `<input class="form-check-input" type="checkbox" id="fcb_${name}" value="${name}" checked>
+        <label class="form-check-label" for="fcb_${name}">${name}</label>`;
+      box.appendChild(d);
+    });
+    box.querySelectorAll('input').forEach(cb => cb.addEventListener('change', () => this._applyFilter()));
+  }
+
+  _onModeChange(mode) {
+    document.getElementById('commonControls').style.display = mode === 'common' ? 'block' : 'none';
+    this._applyFilter();
+  }
+
+  _enableBtns() {
+    ['wordcloudBtn','downloadBtn','applyBtn'].forEach(id => {
+      document.getElementById(id).disabled = false;
+    });
+  }
+
+  // ── 다운로드 ──────────────────────────────────────────
+  _showDownloadModal() {
+    new bootstrap.Modal(document.getElementById('downloadModal')).show();
+  }
+
+  _download() {
+    const fmt = document.querySelector('input[name="downloadFormat"]:checked').value;
+    const now = new Date().toLocaleString();
+    let content, mime, ext;
+
+    if (fmt === 'html') {
+      content = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>body{font-family:serif;margin:20px;} .hd{background:#f8f9fa;padding:15px;border-radius:5px;margin-bottom:20px;} .r{padding:4px 0;border-bottom:1px solid #eee;}</style>
+</head><body><div class="hd"><h2>N-gram 분석 결과</h2><p>생성: ${now}</p>
+<p style="font-size:0.85em;color:#666;">Copyright © 2026 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</p></div>
+${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
+</body></html>`;
+      mime = 'text/html'; ext = 'html';
+    } else {
+      content = `N-gram 분석 결과\n${'='.repeat(50)}\n생성: ${now}\nCopyright © 2026 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0\n${'='.repeat(50)}\n\n` +
+        this.currentResults.join('\n');
+      mime = 'text/plain'; ext = 'txt';
+    }
+
+    this._triggerDownload(new Blob(['\ufeff'+content], {type: mime+';charset=utf-8'}), `ngram_analysis.${ext}`);
+    bootstrap.Modal.getInstance(document.getElementById('downloadModal'))?.hide();
+  }
+
+  // ── 하이라이트 ────────────────────────────────────────
+  _showHighlightModal() {
+    if (!this.filenames.length) { this._alert(this._t('analyzeFirst'), 'danger'); return; }
+    const list = document.getElementById('fileSelectionList');
+    list.innerHTML = '';
+    this.filenames.forEach(name => {
+      const d = document.createElement('div');
+      d.className = 'form-check mb-2';
+      d.innerHTML = `<input class="form-check-input" type="radio" name="selFile" id="hl_${name}" value="${name}">
+        <label class="form-check-label" for="hl_${name}">${name}</label>`;
+      list.appendChild(d);
+    });
+    new bootstrap.Modal(document.getElementById('fileSelectionModal')).show();
+  }
+
+  _applyHighlight() {
+    const sel = document.querySelector('input[name="selFile"]:checked');
+    if (!sel) { this._alert(this._t('selectFile'), 'danger'); return; }
+    const fname  = sel.value;
+    const orig   = this.originalTexts[fname];
+    const hanja  = this.filesData[fname];
+    const idxMap = this.indexMap[fname];
+
+    // 현재 표시된 N-gram만 수집
+    const ngrams = new Set(this.currentResults.map(r => r.split(':')[0].trim()));
+
+    // 빨간색 위치 계산
+    const redPos = new Set();
+    for (const ng of ngrams) {
+      let start = 0;
+      while (true) {
+        const pos = hanja.indexOf(ng, start);
+        if (pos === -1) break;
+        for (let k = 0; k < ng.length; k++) {
+          if (pos + k < idxMap.length) redPos.add(idxMap[pos + k]);
+        }
+        start = pos + 1;
+      }
+    }
+
+    // HTML 생성
+    const total = idxMap.length;
+    const red   = redPos.size;
+    const ratio = total ? (red / total * 100).toFixed(2) : 0;
+
+    let body = '';
+    for (let i = 0; i < orig.length; i++) {
+      const ch = orig[i];
+      if (ch === '\n')      { body += '<br>'; continue; }
+      if (ch === '\t')      { body += '&nbsp;&nbsp;&nbsp;&nbsp;'; continue; }
+      const esc = ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      body += redPos.has(i) ? `<span style="color:red;font-weight:bold">${esc}</span>` : esc;
+    }
+
+    const langMap = {
+      ko:{ title:'분석 결과', total:'전체 한자수', hl:'해당 글자수', ratio:'비율' },
+      en:{ title:'Analysis Results', total:'Total Hanja', hl:'Highlighted', ratio:'Ratio' },
+      zh:{ title:'分析结果', total:'总汉字数', hl:'高亮字符数', ratio:'比例' },
+      ja:{ title:'分析結果', total:'総漢字数', hl:'ハイライト文字数', ratio:'比率' }
+    };
+    const lt = langMap[this.currentLang] || langMap.ko;
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>body{font-family:'맑은 고딕','Malgun Gothic',serif;margin:20px;font-size:14px;line-height:1.8;}
+.stats{background:#f8f9fa;padding:15px;border-radius:5px;margin-bottom:20px;}
+.content{white-space:pre-wrap;word-wrap:break-word;}
+.footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #dee2e6;font-size:0.8rem;color:#6c757d;}
+</style></head><body>
+<div class="stats">
+  <h3>${lt.title}</h3>
+  <p><strong>${lt.total}:</strong> ${total}자</p>
+  <p><strong>${lt.hl}:</strong> ${red}자</p>
+  <p><strong>${lt.ratio}:</strong> ${ratio}%</p>
+</div>
+<div class="content">${body}</div>
+<div class="footer">Copyright © 2026 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</div>
+</body></html>`;
+
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(html); w.document.close(); }
+    else {
+      this._triggerDownload(new Blob([html], {type:'text/html;charset=utf-8'}), `highlight_${fname}.html`);
+    }
+    bootstrap.Modal.getInstance(document.getElementById('fileSelectionModal'))?.hide();
+  }
+
+  // ── 워드클라우드 (Canvas 기반) ────────────────────────
+  _showWordcloud() {
+    if (!this.currentResults.length) { this._alert(this._t('noValidData'), 'danger'); return; }
+
+    const freqMap = new Map();
+    this.currentResults.forEach(r => {
+      const ng  = r.split(':')[0].trim();
+      const tot = [...r.matchAll(/:\s*(\d+)/g)].reduce((s, m) => s + parseInt(m[1]), 0);
+      freqMap.set(ng, tot);
+    });
+
+    const canvas  = document.getElementById('wcCanvas');
+    const ctx     = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 간단한 캔버스 워드클라우드 (나선형 배치)
+    const entries = [...freqMap.entries()].sort((a,b) => b[1]-a[1]).slice(0, 80);
+    const maxFreq = entries[0]?.[1] || 1;
+    const minFreq = entries[entries.length-1]?.[1] || 1;
+    const placed  = [];
+
+    const hues = [0,30,60,120,180,210,240,270,300,330];
+    let placed_count = 0;
+
+    for (const [word, freq] of entries) {
+      const ratio = (freq - minFreq) / (Math.max(maxFreq - minFreq, 1));
+      const size  = Math.round(14 + ratio * 52);
+      const hue   = hues[placed_count % hues.length];
+      ctx.font    = `bold ${size}px 'Microsoft YaHei', serif`;
+      ctx.fillStyle = `hsl(${hue},70%,40%)`;
+      const w = ctx.measureText(word).width;
+      const h = size;
+
+      // 나선형 탐색
+      let placed_ok = false;
+      for (let r = 0; r < 350; r += 2) {
+        const angle = r * 0.25;
+        const x = canvas.width/2  + r * Math.cos(angle) - w/2;
+        const y = canvas.height/2 + r * Math.sin(angle) + h/2;
+        if (x < 0 || x + w > canvas.width || y - h < 0 || y > canvas.height) continue;
+        const overlap = placed.some(p =>
+          x < p.x + p.w + 4 && x + w > p.x - 4 && y - h < p.y + 4 && y > p.y - p.h - 4
+        );
+        if (!overlap) {
+          ctx.fillText(word, x, y);
+          placed.push({x, y, w, h});
+          placed_ok = true;
+          break;
+        }
+      }
+      if (placed_ok) placed_count++;
+    }
+
+    new bootstrap.Modal(document.getElementById('wcModal')).show();
+  }
+
+  _downloadWC() {
+    const canvas = document.getElementById('wcCanvas');
+    const a = document.createElement('a');
+    a.download = 'wordcloud.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  }
+
+  // ── 유틸 ──────────────────────────────────────────────
+  _triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  _showLoading(msg) {
+    document.getElementById('loadingMessage').textContent = msg;
+    new bootstrap.Modal(document.getElementById('loadingModal')).show();
+  }
+  _hideLoading() {
+    bootstrap.Modal.getInstance(document.getElementById('loadingModal'))?.hide();
+  }
+
+  _alert(msg, type) {
+    document.querySelectorAll('.top-alert').forEach(el => el.remove());
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show top-alert`;
+    div.innerHTML = `${msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.querySelector('.container-fluid').prepend(div);
+    setTimeout(() => div.remove(), 5000);
+  }
+}
+
+// ── 초기화 ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  window.app = new NgramAnalyzer();
+});
+</script>
+</body>
+</html>

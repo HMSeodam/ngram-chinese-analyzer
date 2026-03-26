@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "이 도구를 연구에 사용하셨다면 아래와 같이 인용해 주세요."
+title: "N-gram Chinese Text Analyzer (한문 N-gram 분석기)"
+type: software
+authors:
+  - family-names: "한"
+    given-names: "민수"
+    alias: "서담 (Seodam)"
+    affiliation: "동명대학교 (Tongmyong University)"
+repository-code: "https://github.com/HMSeodam/ngram-chinese-analyzer"
+url: "https://hmseodam.github.io/ngram-chinese-analyzer/"
+license: CC-BY-NC-ND-4.0
+version: "2.0"
+date-released: "2026-03-26"
+keywords:
+  - "N-gram"
+  - "classical Chinese"
+  - "text analysis"
+  - "digital humanities"
+  - "Buddhist studies"
+  - "漢文"
+  - "N-gram 분석"
+  - "한문 텍스트"
+abstract: >
+  한문(漢文) 텍스트 파일 여러 개를 업로드하여 N-gram 빈도 분석,
+  공통 구절 추출, 원문 하이라이트, 워드클라우드 시각화를 제공하는
+  순수 프론트엔드 기반 디지털 인문학 도구입니다.
+  GitHub Pages에서 서버 없이 바로 실행됩니다.
