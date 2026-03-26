@@ -183,7 +183,7 @@
   <div class="container">
     <p class="mb-1">
       <strong>N-gram Chinese Text Analyzer</strong> &nbsp;·&nbsp;
-      Copyright &copy; 2026 <strong>서담 한민수 (Han Minsu), 동명대학교 (Tongmyong University)</strong>
+      Copyright &copy; 2025 <strong>서담 한민수 (Han Minsu), 동명대학교 (Tongmyong University)</strong>
     </p>
     <p class="mb-1">
       <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">
@@ -195,7 +195,7 @@
       상업적 이용·변경 배포 시 저작자 허가 필요.
     </p>
     <p class="mb-0 text-muted" style="font-size:0.77rem;">
-      인용 방법: 한민수 (2026). N-gram Chinese Text Analyzer. GitHub.
+      인용 방법: 한민수 (2025). N-gram Chinese Text Analyzer. GitHub.
       <a href="https://github.com/HMSeodam/ngram-chinese-analyzer" target="_blank">https://github.com/HMSeodam/ngram-chinese-analyzer</a>
     </p>
   </div>
@@ -627,12 +627,12 @@ class NgramAnalyzer {
       content = `<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>body{font-family:serif;margin:20px;} .hd{background:#f8f9fa;padding:15px;border-radius:5px;margin-bottom:20px;} .r{padding:4px 0;border-bottom:1px solid #eee;}</style>
 </head><body><div class="hd"><h2>N-gram 분석 결과</h2><p>생성: ${now}</p>
-<p style="font-size:0.85em;color:#666;">Copyright © 2026 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</p></div>
+<p style="font-size:0.85em;color:#666;">Copyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</p></div>
 ${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
 </body></html>`;
       mime = 'text/html'; ext = 'html';
     } else {
-      content = `N-gram 분석 결과\n${'='.repeat(50)}\n생성: ${now}\nCopyright © 2026 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0\n${'='.repeat(50)}\n\n` +
+      content = `N-gram 분석 결과\n${'='.repeat(50)}\n생성: ${now}\nCopyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0\n${'='.repeat(50)}\n\n` +
         this.currentResults.join('\n');
       mime = 'text/plain'; ext = 'txt';
     }
@@ -716,7 +716,7 @@ ${this.currentResults.map(r => `<div class="r">${r}</div>`).join('')}
   <p><strong>${lt.ratio}:</strong> ${ratio}%</p>
 </div>
 <div class="content">${body}</div>
-<div class="footer">Copyright © 2026 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</div>
+<div class="footer">Copyright © 2025 서담 한민수, 동명대학교 | CC BY-NC-ND 4.0</div>
 </body></html>`;
 
     const w = window.open('', '_blank');
